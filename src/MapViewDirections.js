@@ -46,7 +46,7 @@ class MapViewDirections extends Component {
 			o = 1 & i ? ~(i >> 1) : i >> 1, l += n, r += o, d.push([l / c, r / c]);
 		}
 
-		return d = d.map(function(t) {
+		return d = d.map(function (t) {
 			return {
 				latitude: t[0],
 				longitude: t[1],
@@ -64,6 +64,7 @@ class MapViewDirections extends Component {
 			onError,
 			mode = 'driving',
 			language = 'en',
+			waypoints,
 		} = this.props;
 
 		if (origin.latitude && origin.longitude) {
@@ -74,7 +75,7 @@ class MapViewDirections extends Component {
 			destination = `${destination.latitude},${destination.longitude}`;
 		}
 
-		this.fetchRoute(origin, destination, apikey, mode, language)
+		this.fetchRoute(origin, destination, apikey, mode, language, waypoints)
 			.then(result => {
 				if (!this._mounted) return;
 				this.setState(result);
@@ -87,8 +88,12 @@ class MapViewDirections extends Component {
 			});
 	}
 
-	fetchRoute = (origin, destination, apikey, mode, language) => {
+	fetchRoute = (origin, destination, apikey, mode, language, waypoints) => {
 		const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${apikey}&mode=${mode}&language=${language}`;
+
+		if (waypoints) {
+			url += `&waypoints=via:${waypoints}`;
+		}
 
 		return fetch(url)
 			.then(response => response.json())
